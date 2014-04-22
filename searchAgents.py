@@ -366,10 +366,16 @@ def cornersHeuristic(state, problem):
   cpos = state['position']
   foods = state['foods']
 
-  dist = 0
+  dist = 0.0
+  count = 0
   for f in foods:
+    count += 1
     dist += manhattanDistance(cpos, f)
 
+  if (count == 0):
+      return 0
+
+  return (dist/count)
   return dist
 
 class AStarCornersAgent(SearchAgent):
@@ -463,18 +469,20 @@ def foodHeuristic(state, problem):
   "*** YOUR CODE HERE ***"
   from util import manhattanDistance
 
-  print(position)
+  li = foodGrid.asList()
+  width, height = foodGrid.packBits()[0:2]
+  grid_size = width * height
+  dist = 0.0
+  count = 0
 
-  print(foodGrid)
-  print(type(foodGrid))
-  #cpos = state['position']
-  #foods = state['foods']
+  for x in li:
+    dist += manhattanDistance(position, x)
+    count += 1
 
-  dist = 0
-  for f in foods:
-    dist += manhattanDistance(cpos, f)
+  if (count == 0):
+    return 0
 
-  return dist
+  return (dist/count)
   
 class ClosestDotSearchAgent(SearchAgent):
   "Search for all food using a sequence of searches"
@@ -502,7 +510,7 @@ class ClosestDotSearchAgent(SearchAgent):
     problem = AnyFoodSearchProblem(gameState)
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return search.ucs(problem)
   
 class AnyFoodSearchProblem(PositionSearchProblem):
   """
@@ -538,7 +546,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
     x,y = state
     
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return state in self.food.asList()
 
 ##################
 # Mini-contest 1 #
