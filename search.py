@@ -224,8 +224,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
           gcost = problem.getCostOfActions(npath)
           hcost = heuristic(x[state], problem)
-          print("h:{0}, g:{1}".format(hcost, gcost))
-          ncost = max(gcost, hcost)
+
+          ncost = gcost + hcost
 
           visited.append(x[state])
           q.push((nstate, npath), ncost)
