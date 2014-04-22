@@ -1,1 +1,13 @@
 This is a project for CSEP573 Spring 2014.
+
+Reference:
+https://courses.cs.washington.edu/courses/csep573/14sp/pacman/search/search.html
+
+Files to submit:
+- search.py (search algorithm.)
+- searchAgents.py (search-based agents.)
+
+Related files:
+- pacman.py (main file that runs the game.)
+- game.py (game logic.)
+- util.py (useful data structures.)
