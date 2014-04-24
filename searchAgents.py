@@ -376,7 +376,6 @@ def cornersHeuristic(state, problem):
       return 0
 
   return (dist/count)
-  return dist
 
 class AStarCornersAgent(SearchAgent):
   "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -554,19 +553,55 @@ class AnyFoodSearchProblem(PositionSearchProblem):
 
 class ApproximateSearchAgent(Agent):
   "Implement your contest entry here.  Change anything but the class name."
-  
+
+  def ht(self, state, problem):
+    from util import manhattanDistance
+    print(state)
+    position = state.getPacmanPosition()
+    foodGrid = state.getFood()
+
+    print('duh')
+    print(state)
+
+    print(type(state))
+    print(foodGrid)
+
+    li = foodGrid.asList()
+    dist = 0.0
+    count = 0
+
+    for x in li:
+      dist += manhattanDistance(position, x)
+      count += 1
+
+    if (count == 0):
+      return 0
+
+    return (dist/count)
+
   def registerInitialState(self, state):
     "This method is called before any moves are made."
     "*** YOUR CODE HERE ***"
+   
+    problem = AnyFoodSearchProblem(state)
+    self.actions = search.aStarSearch(problem, self.ht)
     
+
   def getAction(self, state):
     """
     From game.py: 
     The Agent will receive a GameState and must return an action from 
     Directions.{North, South, East, West, Stop}
     """ 
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    if 'actionIndex' not in dir(self): self.actionIndex = 0
+    i = self.actionIndex
+    self.actionIndex += 1
+    if i < len(self.actions):
+      return self.actions[i]    
+    else:
+      return Directions.STOP
+
+
     
 def mazeDistance(point1, point2, gameState):
   """
