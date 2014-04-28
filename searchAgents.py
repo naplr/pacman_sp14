@@ -365,17 +365,16 @@ def cornersHeuristic(state, problem):
 
   cpos = state['position']
   foods = state['foods']
-
   dist = 0.0
-  count = 0
-  for f in foods:
-    count += 1
-    dist += manhattanDistance(cpos, f)
 
-  if (count == 0):
+  size = len(foods)
+  if (size == 0):
       return 0
 
-  return (dist/count)
+  distances = [manhattanDistance(cpos, x) for x in foods]
+  distances.sort()
+  return distances[size - 1]
+
 
 class AStarCornersAgent(SearchAgent):
   "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -468,21 +467,36 @@ def foodHeuristic(state, problem):
   "*** YOUR CODE HERE ***"
   from util import manhattanDistance
 
+  #li = foodGrid.asList()
+  #if (len(li) <= 0):
+  #    return 0
+
+  #width, height = foodGrid.packBits()[0:2]
+  #grid_size = width * height
+  #dist = 0.0
+ 
+  #cpos = position
+  #size = len(li)
+
+  #for i in range(size):
+  #  distances = [(manhattanDistance(cpos, x), x) for x in li]
+  #  distances.sort()
+  #  dist += distances[0][0]
+  #  cpos = distances[0][1]
+  #  li.remove(distances[0][1])
+
+  #return dist/size
+
   li = foodGrid.asList()
-  width, height = foodGrid.packBits()[0:2]
-  grid_size = width * height
-  dist = 0.0
-  count = 0
 
-  for x in li:
-    dist += manhattanDistance(position, x)
-    count += 1
+  if (len(li) == 0):
+      return 0
 
-  if (count == 0):
-    return 0
-
-  return (dist/count)
+  distances = [(manhattanDistance(position, x), x) for x in li]
+  distances.sort()
+  return distances[len(li) - 1][0]
   
+
 class ClosestDotSearchAgent(SearchAgent):
   "Search for all food using a sequence of searches"
   def registerInitialState(self, state):
