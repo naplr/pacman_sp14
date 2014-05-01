@@ -324,7 +324,7 @@ class CornersProblem(search.SearchProblem):
       nfood = tuple(nfood)
       if (not hitsWall):
           nextstate = {'position': (nextx, nexty), 'foods': nfood}
-          successors.append((nextstate, action))
+          successors.append((nextstate, action, 1))
 
     self._expanded += 1
     return successors
