@@ -137,17 +137,34 @@ class MinimaxAgent(MultiAgentSearchAgent):
     "*** YOUR CODE HERE ***"
     # self.value(self.index, gameState, 0)
     isDone = gameState.isWin() or gameState.isLose()
-    isDepthLimit = step/gameState.getNumAgents() == self.depth
-    if (isDone or isDepthLimit):
-        return self.evaluationFunction(gameState)
+    selectAction = Directions.STOP
+    if (isDone):
+        return Directions.STOP
     if (self.index == 0):
-        return self.maxValue(self.index, gameState, 0)
+        print("first_max_" + str(self.index))
+        v = float("-inf")
+        nextAgentIndex = (self.index + 1) % gameState.getNumAgents()
+        legalMoves = gameState.getLegalActions(self.index)
+        for action in legalMoves:
+            successorGameState = gameState.generateSuccessor(self.index, action)
+            if (self.value(nextAgentIndex, successorGameState, 1) > v):
+                selectAction = action
     else:
-        return self.minValue(self.index, gameState, 0)
+        print("first_min_" + str(self.index))
+        v = float("inf")
+        nextAgentIndex = (self.index + 1) % gameState.getNumAgents()
+        legalMoves = gameState.getLegalActions(self.index)
+        for action in legalMoves:
+            successorGameState = gameState.generateSuccessor(self.index, action)
+            if (self.value(nextAgentIndex, successorGameState, 1) < v):
+                selectAction = action
+
+    return selectAction
 
   def value(self, agentIndex, gameState, step):
+      print("value_" + str(agentIndex))
       isDone = gameState.isWin() or gameState.isLose()
-      isDepthLimit = step/gameState.getNumAgents() == self.depth
+      isDepthLimit = step/gameState.getNumAgents() >= self.depth
       if (isDone or isDepthLimit):
           return self.evaluationFunction(gameState)
       if (agentIndex == 0):
@@ -156,6 +173,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
           return self.minValue(agentIndex, gameState, step+1)
 
   def maxValue(self, agentIndex, gameState, step):
+      print("max_" + str(agentIndex))
       v = float("-inf")
       nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
       legalMoves = gameState.getLegalActions(agentIndex)
@@ -165,6 +183,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
       return v
 
   def minValue(self, agentIndex, gameState, step):
+      print("min_" + str(agentIndex))
       v = float("inf")
       nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
       legalMoves = gameState.getLegalActions(agentIndex)
