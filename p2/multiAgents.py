@@ -68,7 +68,16 @@ class ReflexAgent(Agent):
     newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
     "*** YOUR CODE HERE ***"
-    return successorGameState.getScore()
+    ghostPositions = successorGameState.getGhostPositions()
+    g_distances = [g for g in ghostPositions if manhattanDistance(newPos, g) <= 2]
+    ghost_score = -1000 if g_distances else 0
+
+    newFood = successorGameState.getFood().asList()
+    food_distances = [manhattanDistance(newPos, f) for f in newFood]
+    food_distances.sort()
+    food_score = food_distances[0] if food_distances else 1
+        
+    return successorGameState.getScore() + ghost_score + 1.0/food_score
 
 def scoreEvaluationFunction(currentGameState):
   """
@@ -126,7 +135,61 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns the total number of agents in the game
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # self.value(self.index, gameState, 0)
+    isDone = gameState.isWin() or gameState.isLose()
+    isDepthLimit = step/gameState.getNumAgents() == self.depth
+    if (isDone or isDepthLimit):
+        return self.evaluationFunction(gameState)
+    if (self.index == 0):
+        return self.maxValue(self.index, gameState, 0)
+    else:
+        return self.minValue(self.index, gameState, 0)
+
+  def value(self, agentIndex, gameState, step):
+      isDone = gameState.isWin() or gameState.isLose()
+      isDepthLimit = step/gameState.getNumAgents() == self.depth
+      if (isDone or isDepthLimit):
+          return self.evaluationFunction(gameState)
+      if (agentIndex == 0):
+          return self.maxValue(agentIndex, gameState, step+1)
+      else:
+          return self.minValue(agentIndex, gameState, step+1)
+
+  def maxValue(self, agentIndex, gameState, step):
+      v = float("-inf")
+      nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
+      legalMoves = gameState.getLegalActions(agentIndex)
+      for action in legalMoves:
+          successorGameState = gameState.generateSuccessor(agentIndex, action)
+          v = max(v, self.value(nextAgentIndex, successorGameState, step))
+      return v
+
+  def minValue(self, agentIndex, gameState, step):
+      v = float("inf")
+      nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
+      legalMoves = gameState.getLegalActions(agentIndex)
+      for action in legalMoves:
+          successorGameState = gameState.generateSuccessor(agentIndex, action)
+          v = min(v, self.value(nextAgentIndex, successorGameState, step))
+      return v
+
+    # successorGameState = currentGameState.generatePacmanSuccessor(action)
+    # newPos = successorGameState.getPacmanPosition()
+    # oldFood = currentGameState.getFood()
+    # newGhostStates = successorGameState.getGhostStates()
+    # newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+    # "*** YOUR CODE HERE ***"
+    # ghostPositions = successorGameState.getGhostPositions()
+    # g_distances = [manhattanDistance(newPos, g) for g in ghostPositions]
+    # g_distances.sort()
+    # ghost_score = g_distances[0] if g_distances else 0
+
+    # newFood = successorGameState.getFood().asList()
+    # food_distances = [manhattanDistance(newPos, f) for f in newFood]
+    # food_distances.sort()
+    # food_score = food_distances[0] if food_distances else 1
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
   """
