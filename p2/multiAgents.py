@@ -271,11 +271,11 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             v = currentValue
 
         if (isMaximizer):
-            if (v >= beta):
+            if (v > beta):
                 break
             alpha = max(alpha, v)
         else:
-            if (v <= alpha):
+            if (v < alpha):
                 break
             beta = min(beta, v)
 
@@ -294,24 +294,26 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
   def maxValue(self, agentIndex, gameState, step, alpha, beta):
       v = float("-inf")
+      prunable = (agentIndex == 0) or (agentIndex == gameState.getNumAgents() - 1)
       nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
       legalMoves = gameState.getLegalActions(agentIndex)
       for action in legalMoves:
           successorGameState = gameState.generateSuccessor(agentIndex, action)
           v = max(v, self.value(nextAgentIndex, successorGameState, step, alpha, beta))
-          if (v >= beta):
+          if (v > beta):
               return v
           alpha = max(alpha, v)
       return v
 
   def minValue(self, agentIndex, gameState, step, alpha, beta):
       v = float("inf")
+      prunable = (agentIndex == 0) or (agentIndex == gameState.getNumAgents() - 1)
       nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
       legalMoves = gameState.getLegalActions(agentIndex)
       for action in legalMoves:
           successorGameState = gameState.generateSuccessor(agentIndex, action)
           v = min(v, self.value(nextAgentIndex, successorGameState, step, alpha, beta))
-          if (v <= alpha):
+          if (v < alpha):
               return v
           beta = min(beta, v)
       return v
