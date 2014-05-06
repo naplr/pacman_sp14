@@ -187,11 +187,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
     #return selectAction
 
   def value(self, agentIndex, gameState, step):
-      #print("value_" + str(agentIndex))
       isDone = gameState.isWin() or gameState.isLose()
       isDepthLimit = step/gameState.getNumAgents() >= self.depth
       if (isDone or isDepthLimit):
-          #print("val_limit_return_{0}_{1}".format(agentIndex, self.evaluationFunction(gameState)))
           return self.evaluationFunction(gameState)
       if (agentIndex == 0):
           return self.maxValue(agentIndex, gameState, step+1)
@@ -202,24 +200,18 @@ class MinimaxAgent(MultiAgentSearchAgent):
       v = float("-inf")
       nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
       legalMoves = gameState.getLegalActions(agentIndex)
-      #print("max_{0}/{2}_moves:{1}".format(agentIndex, legalMoves, step))
       for action in legalMoves:
-      #    print("explore_max_{0}/{1}_{2}".format(agentIndex, step, action))
           successorGameState = gameState.generateSuccessor(agentIndex, action)
           v = max(v, self.value(nextAgentIndex, successorGameState, step))
-      #print("max_return_{0}_{1}".format(agentIndex, v))
       return v
 
   def minValue(self, agentIndex, gameState, step):
       v = float("inf")
       nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
       legalMoves = gameState.getLegalActions(agentIndex)
-      #print("min_{0}/{2}_moves:{1}".format(agentIndex, legalMoves, step))
       for action in legalMoves:
-      #    print("explore_min_{0}/{1}_{2}".format(agentIndex, step, action))
           successorGameState = gameState.generateSuccessor(agentIndex, action)
           v = min(v, self.value(nextAgentIndex, successorGameState, step))
-      #print("min_return_{0}_{1}".format(agentIndex, v))
       return v
 
     # successorGameState = currentGameState.generatePacmanSuccessor(action)
@@ -331,7 +323,53 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       legal moves.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    selectedAction = Directions.STOP
+    
+    isDone = gameState.isWin() or gameState.isLose()
+    if (isDone):
+        return Directions.STOP
+
+    nextAgentIndex = (self.index + 1) % gameState.getNumAgents()
+    legalMoves = gameState.getLegalActions(self.index)
+    isMaximizer = self.index == 0
+    v = float("-inf") if isMaximizer else float("inf")
+    for action in legalMoves:
+        successorGameState = gameState.generateSuccessor(self.index, action)
+        currentValue = self.value(nextAgentIndex, successorGameState, 1) 
+        select = (currentValue > v) if isMaximizer else (current < v)
+        if (select):
+            selectedAction = action
+            v = currentValue
+    return selectedAction
+
+  def value(self, agentIndex, gameState, step):
+      isDone = gameState.isWin() or gameState.isLose()
+      isDepthLimit = step/gameState.getNumAgents() >= self.depth
+      if (isDone or isDepthLimit):
+          return self.evaluationFunction(gameState)
+      if (agentIndex == 0):
+          return self.maxValue(agentIndex, gameState, step+1)
+      else:
+          return self.expValue(agentIndex, gameState, step+1)
+
+  def maxValue(self, agentIndex, gameState, step):
+      v = float("-inf")
+      nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
+      legalMoves = gameState.getLegalActions(agentIndex)
+      for action in legalMoves:
+          successorGameState = gameState.generateSuccessor(agentIndex, action)
+          v = max(v, self.value(nextAgentIndex, successorGameState, step))
+      return v
+
+  def expValue(self, agentIndex, gameState, step):
+      v = 0
+      nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
+      legalMoves = gameState.getLegalActions(agentIndex)
+      for action in legalMoves:
+          successorGameState = gameState.generateSuccessor(agentIndex, action)
+          v += self.value(nextAgentIndex, successorGameState, step)
+      v = v*1.0/len(legalMoves)
+      return v
 
 def betterEvaluationFunction(currentGameState):
   """
