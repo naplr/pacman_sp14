@@ -259,43 +259,61 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     nextAgentIndex = (self.index + 1) % gameState.getNumAgents()
     legalMoves = gameState.getLegalActions(self.index)
     isMaximizer = self.index == 0
+    alpha = float("-inf")
+    beta = float("inf")
     v = float("-inf") if isMaximizer else float("inf")
     for action in legalMoves:
         successorGameState = gameState.generateSuccessor(self.index, action)
-        currentValue = self.value(nextAgentIndex, successorGameState, 1) 
+        currentValue = self.value(nextAgentIndex, successorGameState, 1, alpha, beta) 
         select = (currentValue > v) if isMaximizer else (current < v)
         if (select):
             selectedAction = action
             v = currentValue
 
-    return selectAction
+        if (isMaximizer):
+            if (v >= beta):
+                break
+            alpha = max(alpha, v)
+        else:
+            if (v <= alpha):
+                break
+            beta = min(beta, v)
 
-  def value(self, agentIndex, gameState, step):
+    #print("action={0}, value={1}".format(selectedAction, v))
+    return selectedAction
+
+  def value(self, agentIndex, gameState, step, alpha, beta):
       isDone = gameState.isWin() or gameState.isLose()
       isDepthLimit = step/gameState.getNumAgents() >= self.depth
       if (isDone or isDepthLimit):
           return self.evaluationFunction(gameState)
       if (agentIndex == 0):
-          return self.maxValue(agentIndex, gameState, step+1)
+          return self.maxValue(agentIndex, gameState, step+1, alpha, beta)
       else:
-          return self.minValue(agentIndex, gameState, step+1)
+          return self.minValue(agentIndex, gameState, step+1, alpha, beta)
 
-  def maxValue(self, agentIndex, gameState, step):
+  def maxValue(self, agentIndex, gameState, step, alpha, beta):
       v = float("-inf")
       nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
       legalMoves = gameState.getLegalActions(agentIndex)
       for action in legalMoves:
           successorGameState = gameState.generateSuccessor(agentIndex, action)
-          v = max(v, self.value(nextAgentIndex, successorGameState, step))
+          v = max(v, self.value(nextAgentIndex, successorGameState, step, alpha, beta))
+          if (v >= beta):
+              return v
+          alpha = max(alpha, v)
       return v
 
-  def minValue(self, agentIndex, gameState, step):
+  def minValue(self, agentIndex, gameState, step, alpha, beta):
       v = float("inf")
       nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
       legalMoves = gameState.getLegalActions(agentIndex)
       for action in legalMoves:
           successorGameState = gameState.generateSuccessor(agentIndex, action)
-          v = min(v, self.value(nextAgentIndex, successorGameState, step))
+          v = min(v, self.value(nextAgentIndex, successorGameState, step, alpha, beta))
+          if (v <= alpha):
+              return v
+          beta = min(beta, v)
       return v
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
