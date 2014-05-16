@@ -155,37 +155,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
     return selectedAction
 
-    # self.value(self.index, gameState, 0)
-    #isDone = gameState.isWin() or gameState.isLose()
-    #selectAction = Directions.STOP
-    #if (isDone):
-    #    return Directions.STOP
-    #if (self.index == 0):
-    #    #print("first_max_" + str(self.index))
-    #    v = float("-inf")
-    #    nextAgentIndex = (self.index + 1) % gameState.getNumAgents()
-    #    legalMoves = gameState.getLegalActions(self.index)
-    #    for action in legalMoves:
-    #        successorGameState = gameState.generateSuccessor(self.index, action)
-    #        currentValue = self.value(nextAgentIndex, successorGameState, 1) 
-    #        if (currentValue > v):
-    #            selectAction = action
-    #            v = currentValue
-    #else:
-    #    #print("first_min_" + str(self.index))
-    #    v = float("inf")
-    #    nextAgentIndex = (self.index + 1) % gameState.getNumAgents()
-    #    legalMoves = gameState.getLegalActions(self.index)
-    #    for action in legalMoves:
-    #        successorGameState = gameState.generateSuccessor(self.index, action)
-    #        currentValue = self.value(nextAgentIndex, successorGameState, 1) 
-    #        if (currentValue < v):
-    #            selectAction = action
-    #            v = currentValue
-
-    #print("action={0}, value={1}".format(selectAction, v))
-    #return selectAction
-
   def value(self, agentIndex, gameState, step):
       isDone = gameState.isWin() or gameState.isLose()
       isDepthLimit = step/gameState.getNumAgents() >= self.depth
@@ -213,24 +182,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
           successorGameState = gameState.generateSuccessor(agentIndex, action)
           v = min(v, self.value(nextAgentIndex, successorGameState, step))
       return v
-
-    # successorGameState = currentGameState.generatePacmanSuccessor(action)
-    # newPos = successorGameState.getPacmanPosition()
-    # oldFood = currentGameState.getFood()
-    # newGhostStates = successorGameState.getGhostStates()
-    # newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
-    # "*** YOUR CODE HERE ***"
-    # ghostPositions = successorGameState.getGhostPositions()
-    # g_distances = [manhattanDistance(newPos, g) for g in ghostPositions]
-    # g_distances.sort()
-    # ghost_score = g_distances[0] if g_distances else 0
-
-    # newFood = successorGameState.getFood().asList()
-    # food_distances = [manhattanDistance(newPos, f) for f in newFood]
-    # food_distances.sort()
-    # food_score = food_distances[0] if food_distances else 1
-
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
   """
@@ -386,19 +337,19 @@ def betterEvaluationFunction(currentGameState):
 
   ghostPositions = currentGameState.getGhostPositions()
   g_distances = [g for g in newGhostStates if manhattanDistance(newPos, g.getPosition()) <= 3 and g.scaredTimer < 2]
-  ghost_score = -5000 * len(g_distances)
+  ghost_score = -100 * len(g_distances)
 
-  #scaredGhosts = [g for g in newGhostStates if g.scaredTimer >= 4]
-  #scaredGhostScore = 1
-  #for g in scaredGhosts:
-  #    scaredGhostScore += manhattanDistance(newPos, g.getPosition())
+  scaredGhosts = [g for g in newGhostStates if g.scaredTimer >= 4]
+  scaredGhostScore = 1
+  for g in scaredGhosts:
+      scaredGhostScore += manhattanDistance(newPos, g.getPosition())
 
-  #capsuleScore = 0
-  #if (len(scaredGhosts) < 2):
-  #    capsules = currentGameState.getCapsules()
-  #    capsulesDist = [manhattanDistance(newPos, e) for e in capsules]
-  #    capsulesDist.sort()
-  #    capsuleScore = 10.0/capsulesDist[0] if len(capsulesDist) > 0 else 0
+  capsuleScore = 0
+  if (len(scaredGhosts) < 2):
+      capsules = currentGameState.getCapsules()
+      capsulesDist = [manhattanDistance(newPos, e) for e in capsules]
+      capsulesDist.sort()
+      capsuleScore = 1000.0/capsulesDist[0] if len(capsulesDist) > 0 else 0
 
   newFood = currentGameState.getFood().asList()
   food_distances = [manhattanDistance(newPos, f) for f in newFood]
@@ -409,9 +360,10 @@ def betterEvaluationFunction(currentGameState):
       food_score += d
   food_score = food_score*1.0/len(food_distances) if food_distances else 1 
       
-  print(200.0/food_score)
-  return currentGameState.getScore() + ghost_score + 2000.0/closest_food_score + 1000.0/food_score 
-  #return currentGameState.getScore() + ghost_score + 10.0/scaredGhostScore + 20.0/closest_food_score + 15.0/food_score + capsuleScore
+  print("{0}, {1}, {2}, {3}, {4}, {5}".format(currentGameState.getScore(), ghost_score, 1.0/scaredGhostScore, 2.0/closest_food_score, 1.0/food_score, capsuleScore))
+  print(2.0/closest_food_score)
+  #return currentGameState.getScore() + ghost_score + 2.0/closest_food_score + 1.0/food_score 
+  return currentGameState.getScore() + ghost_score + 1.0/scaredGhostScore + 2.0/closest_food_score + 1.0/food_score + capsuleScore
 
 # Abbreviation
 better = betterEvaluationFunction
