@@ -201,53 +201,39 @@ class ParticleFilter(InferenceModule):
     for i in range(self.numParticles):
         ghostPos = random.choice(self.legalPositions)
         self.particles.append(ghostPos)
+
+    #print("\n".join([str(elem) for elem in self.particles]))
+    #util.raiseNotDefined()
   
   def observe(self, observation, gameState):
     "Update beliefs based on the given distance observation."
     emissionModel = busters.getObservationDistribution(observation)
     pacmanPosition = gameState.getPacmanPosition()
     "*** YOUR CODE HERE ***"
-    print("OBSERVE")
     weights = util.Counter()
 
     hasNonZero = False
     for p in self.particles:
-        prob = emissionModel[p]
-        weights[p] = prob
+        distance = util.manhattanDistance(p, pacmanPosition)
+        prob = emissionModel[distance]
+        weights[p] += prob
         if(prob > 0):
             hasNonZero = True
 
     if (not hasNonZero):
-        print("no nonzero")
         newParticles = []
         for i in range(self.numParticles):
             ghostPos = random.choice(self.legalPositions)
             newParticles.append(ghostPos)
+
         self.particles = newParticles
         return
-
-    print("yes")
 
     resampledParticles = []
     for i in range(self.numParticles):
         resampledParticles.append(util.sample(weights))
 
     self.particles = resampledParticles
-
-
-    #allPossible, oldBelief = util.Counter(), self.getBeliefDistribution()
-    #for location in self.legalPositions:
-    #    distance = util.manhattanDistance(location, pacmanPosition)
-    #    allPossible[location] += emissionModel[distance] * oldBelief[location]
-    #if not any(allPossible.values()): # Case 2
-    #    self.initializeUniformly(gameState)
-    #else:
-    #    temp = []
-    #    for _ in range(0, self.numParticles):
-    #        temp.append(util.sample(allPossible)) #recreate samples based on distribution allPossible
-    #    self.particles = temp
-    
-    
     
   def elapseTime(self, gameState):
     """
@@ -262,7 +248,6 @@ class ParticleFilter(InferenceModule):
     position.
     """
     "*** YOUR CODE HERE ***"
-    print("ELAPSETIME")
     newParticles = []
     for currentParticle in self.particles:
         newPosDist = self.getPositionDistribution(self.setGhostPosition(gameState, currentParticle))
@@ -377,9 +362,14 @@ class JointParticleFilter:
     for oldParticle in self.particles:
       newParticle = list(oldParticle) # A list of ghost positions
       "*** YOUR CODE HERE ***"
+      for i in range(self.numGhosts):
+        newPosDist = getPositionDistributionForGhost(setGhostPositions(gameState, newParticle),
+                                                   i + 1, self.ghostAgents[i])
+        newPos = util.sample(newPosDist)
+        newParticle[i] = newPos
       newParticles.append(tuple(newParticle))
     self.particles = newParticles
-  
+
   def observeState(self, gameState):
     """
     Resamples the set of particles using the likelihood of the noisy observations.
@@ -408,6 +398,39 @@ class JointParticleFilter:
     emissionModels = [busters.getObservationDistribution(dist) for dist in noisyDistances]
 
     "*** YOUR CODE HERE ***"
+    weights = util.Counter()
+
+    hasNonZero = False
+    for p in self.particles:
+        p = list(p)
+        prob = 1
+        for i in range(self.numGhosts):
+            if noisyDistances[i] == 999:
+                p[i] = (2 * i + 1, 1)
+            else:
+                distance = util.manhattanDistance(p[i], pacmanPosition)
+                prob = prob * emissionModels[i][distance]
+        weights[tuple(p)] += prob
+        if(prob > 0):
+            hasNonZero = True
+
+        p = tuple(p)
+
+    if (not hasNonZero):
+        self.initializeParticles()
+        for i in range(self.numGhosts):
+            if noisyDistances[i] == 999:
+                for p in self.particles:
+                    p = list(p)
+                    p[i] = (2 * i + 1, 1)
+                    p = tuple(p)
+        return
+
+    resampledParticles = []
+    for i in range(self.numParticles):
+        resampledParticles.append(util.sample(weights))
+
+    self.particles = resampledParticles
   
   def getBeliefDistribution(self):
     dist = util.Counter()

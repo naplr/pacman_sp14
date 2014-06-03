@@ -129,34 +129,3 @@ class GreedyBustersAgent(BustersAgent):
 
     return targetAction
 
-        
-
-    #i = 0
-    #closestDist = float('Inf')
-    #closestPos = None
-    #for g in livingGhosts:
-    #    if i==0:
-    #        i=i+1
-    #    elif g:
-    #        best = 0
-    #        argBest = None
-    #        for pos in livingGhostPositionDistributions[i-1]:
-    #            if livingGhostPositionDistributions[i-1][pos] > best:
-    #                best = livingGhostPositionDistributions[i-1][pos]
-    #                argBest = pos
-    #        dist = self.distancer.getDistance(pacmanPosition, argBest)
-    #        if dist < closestDist:
-    #            closestDist = dist
-    #            closestPos = argBest
-    #        i = i + 1
-    #    
-    #bestAction = Directions.STOP
-    #for action in legal:
-    #    newPos = Actions.getSuccessor(pacmanPosition, action)
-    #    newDist = self.distancer.getDistance(closestPos, newPos)
-    #    if newDist < closestDist:
-    #        bestAction = action
-    #        closestDist = newDist
-    #        
-    #return bestAction
-    
